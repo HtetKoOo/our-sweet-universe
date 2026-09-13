@@ -357,6 +357,25 @@ export const littleQuestionViews = pgTable(
   ],
 );
 
+// One pre-decision reminder per member and question. The composite key makes
+// duplicate scheduler deliveries harmless.
+export const littleQuestionReminders = pgTable(
+  "little_question_reminders",
+  {
+    roundId: uuid("round_id")
+      .notNull()
+      .references(() => littleQuestionRounds.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    sentAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.roundId, t.userId] }),
+    index("little_question_reminders_user_idx").on(t.userId, t.sentAt),
+  ],
+);
+
 // Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows
 // survive request failures so cleanup can retry without logging private URLs.
 export const heartPhotoUploads = pgTable(

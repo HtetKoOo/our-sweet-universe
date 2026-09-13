@@ -51,3 +51,19 @@ export async function sendCleanupCode({ to, code }: { to: string; code: string }
   });
   if (error) throw new Error("Cleanup code could not be sent");
 }
+
+export async function sendLittleQuestionReminder({ to }: { to: string }) {
+  if (!emailConfigured()) throw new Error("Email delivery is not configured");
+  const origin = process.env.BETTER_AUTH_URL;
+  if (!origin) throw new Error("The app URL is not configured");
+  const url = new URL("/space/questions", origin).toString();
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to,
+    subject: "A little thought is still waiting",
+    text: `There is still room for your answer in Our Sweet Universe.\n\nOpen today’s little question: ${url}\n\nAfter noon, you and your person can choose whether to let this one rest.`,
+    html: `<main style="font-family:Arial,sans-serif;color:#4b2c3d;line-height:1.6"><h1 style="font-family:Georgia,serif">A little time remains.</h1><p>There is still room for your answer in <strong>Our Sweet Universe</strong>.</p><p><a href="${url}" style="display:inline-block;padding:12px 20px;border-radius:999px;background:#b33d6c;color:#fff;text-decoration:none;font-weight:700">Open today’s question</a></p><p>After noon, you and your person can choose whether to let this one rest.</p></main>`,
+  });
+  if (error) throw new Error("Little question reminder email could not be sent");
+}
