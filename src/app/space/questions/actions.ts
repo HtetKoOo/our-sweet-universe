@@ -1,14 +1,15 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireCouple } from "@/lib/authorization";
 import { getDb } from "@/lib/db";
-import { littleQuestionAnswers, littleQuestionRounds } from "@/lib/db/schema";
+import { coupleMembers, littleQuestionAnswers, littleQuestionRounds, user } from "@/lib/db/schema";
 import {
   findQuestionRoundForActor,
   revealWhenBothAnswered,
 } from "@/lib/little-questions";
+import { sendRestRequestEmail } from "@/lib/email";
 import {
   littleQuestionActionInput,
   type LittleQuestionActionState,
@@ -74,6 +75,15 @@ export async function actOnLittleQuestion(
       )
       .returning({ id: littleQuestionRounds.id });
     if (!changed.length) return { message: "That question just changed. Please check it again." };
+    try {
+      const [partner] = await db.select({ name: user.name, email: user.email, emailVerified: user.emailVerified })
+        .from(coupleMembers).innerJoin(user, eq(coupleMembers.userId, user.id))
+        .where(and(eq(coupleMembers.coupleId, actor.coupleId), sql`${coupleMembers.userId} <> ${actor.userId}`))
+        .limit(1);
+      if (partner?.emailVerified) await sendRestRequestEmail({ to: partner.email });
+    } catch (error) {
+      console.error("rest-request-email-failed", error);
+    }
     revalidatePath("/space/questions");
     return { message: "Your request is waiting for your person." };
   }

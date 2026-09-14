@@ -67,3 +67,37 @@ export async function sendLittleQuestionReminder({ to }: { to: string }) {
   });
   if (error) throw new Error("Little question reminder email could not be sent");
 }
+
+function appUrl(path = "/space") {
+  const origin = process.env.BETTER_AUTH_URL;
+  if (!origin) throw new Error("The app URL is not configured");
+  return new URL(path, origin).toString();
+}
+
+async function sendMomentEmail({ to, subject, heading, body, action }: { to: string; subject: string; heading: string; body: string; action?: string }) {
+  if (!emailConfigured()) throw new Error("Email delivery is not configured");
+  const url = appUrl();
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM!, to, subject,
+    text: `${heading}\n\n${body}\n\nOpen Our Sweet Universe: ${url}`,
+    html: `<main style="font-family:Arial,sans-serif;color:#4b2c3d;line-height:1.6"><h1 style="font-family:Georgia,serif">${heading}</h1><p>${body}</p><p><a href="${url}" style="display:inline-block;padding:12px 20px;border-radius:999px;background:#b33d6c;color:#fff;text-decoration:none;font-weight:700">${action ?? "Open our space"}</a></p></main>`,
+  });
+  if (error) throw new Error("Moment email could not be sent");
+}
+
+export function sendRestRequestEmail({ to }: { to: string }) {
+  return sendMomentEmail({ to, subject: "A little pause is waiting for your say", heading: "A little pause is waiting.", body: "Your person asked to let today’s little question rest. Your answer is still private; you can choose together in Our Sweet Universe.", action: "Respond to the request" });
+}
+
+export function sendMonthsaryEmail({ to, coupleName }: { to: string; coupleName: string }) {
+  return sendMomentEmail({ to, subject: "One more month of us", heading: "Another little month of us.", body: `Today marks another month of ${coupleName}. Keep a small moment close today.`, action: "Open our space" });
+}
+
+export function sendAnniversaryEmail({ to, coupleName, years }: { to: string; coupleName: string; years: number }) {
+  return sendMomentEmail({ to, subject: "A year worth keeping close", heading: years === 1 ? "One year of us." : `${years} years of us.`, body: `Today is the anniversary of ${coupleName}. Here’s to every little day that brought you here.`, action: "Celebrate together" });
+}
+
+export function sendBirthdayEmail({ to, name, isOwnBirthday }: { to: string; name: string; isOwnBirthday: boolean }) {
+  return sendMomentEmail({ to, subject: isOwnBirthday ? "A little birthday wish for you" : `Today is ${name}’s birthday`, heading: isOwnBirthday ? "Today is yours." : "A day to make a little sweeter.", body: isOwnBirthday ? "Happy birthday. May today hold something soft, lovely, and entirely yours." : `It’s ${name}’s birthday today. A small note, a favorite memory, or a little extra care could make the day warmer.`, action: "Open our space" });
+}

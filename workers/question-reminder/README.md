@@ -1,28 +1,31 @@
-# Question reminder Worker
+# Our Sweet Universe email Worker
 
-This tiny Cloudflare Worker wakes once per day at 11:30 in Asia/Bangkok and
-calls the app's protected reminder endpoint. It does not contain database or
-Resend credentials.
+This tiny Cloudflare Worker wakes the app twice a day. It contains neither
+Database nor Resend credentials; it only carries a shared secret used to call
+protected endpoints in the app.
+
+- **06:00 Asia/Bangkok** — sends monthsary, anniversary, and birthday emails.
+- **11:30 Asia/Bangkok** — sends the unanswered little-question reminder.
 
 ## Production setup
 
-1. In Vercel, create a random `QUESTION_REMINDER_SECRET` environment variable.
-2. From this directory, authenticate and set the same value as a Cloudflare
-   Worker secret:
+1. In Vercel, set a random `QUESTION_REMINDER_SECRET` production environment
+   variable.
+2. From this directory, set that same value as the Cloudflare Worker secret:
 
    ```sh
-   npx wrangler login
    npx wrangler secret put QUESTION_REMINDER_SECRET
    npx wrangler deploy
    ```
 
-3. Confirm the cron trigger appears in Cloudflare Workers & Pages.
+The Worker calls these protected endpoints:
 
-The Worker sends `Authorization: Bearer <secret>` to
-`https://ours.htetkooo.dev/api/jobs/question-reminder`. The app verifies that
-secret, checks which verified couple members have not answered yesterday's
-question, sends each eligible member one email, and records the delivery to
-make duplicate scheduler runs harmless.
+- `/api/jobs/celebration-email`
+- `/api/jobs/question-reminder`
 
-`wrangler.toml` assumes the couple timezone remains Asia/Bangkok. If it
-changes, update the UTC cron expression too.
+Each email delivery is saved before it is sent. If a scheduler retry happens,
+the same person will not get another copy. If Resend rejects a delivery, the
+saved delivery is removed so the next run can retry it.
+
+`wrangler.toml` assumes the couple timezone is `Asia/Bangkok`. If the couple
+changes timezone, change both UTC cron expressions to match it.

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { saveMemory, saveCouple } from "@/app/space/actions";
+import { saveMemory, saveCouple, saveBirthday } from "@/app/space/actions";
 import type { ActionState } from "@/lib/memory-input";
 import { MediaPicker, type LibraryAsset } from "./media-picker";
 const initial: ActionState = {message: ""};
@@ -55,6 +55,21 @@ export function CoupleForm({couple}: {couple: {name: string; togetherSince: stri
       <small id="timezone-help">Used for today’s date and our anniversary countdown.</small>
       <small className="field-error">{state.errors?.timezone?.join(" ")}</small>
       <button className="button">{pending ? "Saving…" : "Save our details"}</button>
+    </fieldset>
+    <p role="status" className="form-status">{state.message}</p>
+  </form>;
+}
+
+export function BirthdayForm({ birthday }: { birthday: string | null }) {
+  const [state, action, pending] = useActionState(saveBirthday, initial);
+  const [draft, setDraft] = useState(birthday ?? "");
+  return <form action={action} className="private-form">
+    <fieldset disabled={pending}>
+      <label htmlFor="birthday">Your birthday <span>(private)</span></label>
+      <input id="birthday" name="birthday" type="date" value={draft} onChange={e => setDraft(e.target.value)} aria-describedby="birthday-help" />
+      <small id="birthday-help">Used only to send a birthday email to you and your person.</small>
+      <small className="field-error">{state.errors?.birthday?.join(" ")}</small>
+      <button className="button">{pending ? "Saving…" : "Save my birthday"}</button>
     </fieldset>
     <p role="status" className="form-status">{state.message}</p>
   </form>;

@@ -15,6 +15,9 @@ export const memoryInput = z.object({
   isMilestone: z.boolean(),
 });
 export const memoryAssetIdsInput = z.array(z.uuid()).max(12);
+export const birthdayInput = z.object({
+  birthday: z.union([z.literal(""), z.iso.date("Choose a valid birthday.")]).transform((value) => value || null),
+});
 export const coupleInput = z.object({
   name: z.string().trim().min(1).max(100),
   togetherSince: z.iso.date("Choose a valid date."),
