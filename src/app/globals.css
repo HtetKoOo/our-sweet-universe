@@ -4895,3 +4895,33 @@ body:has(.memory-detail) .private-header {
     border-radius: 26px;
   }
 }
+
+/* Little Jar: a gentle surprise rather than another inbox. */
+.little-jar { display:grid; gap:22px; padding-bottom:18px; }
+.jar-intro { display:flex; align-items:flex-start; gap:15px; padding:8px 3px 2px; }
+.jar-intro .jar-icon { display:grid; place-items:center; flex:0 0 auto; width:52px; height:52px; border-radius:18px; color:#ad426c; background:#fbe3ee; }
+.jar-intro h1 { margin:4px 0 7px; font-size:clamp(2rem,7vw,3.2rem); letter-spacing:-.045em; }
+.jar-intro p:last-child { margin:0; max-width:490px; color:#795d6d; }
+.jar-status { display:flex; flex-wrap:wrap; gap:9px; }
+.jar-status span { padding:9px 12px; border:1px solid #efd3de; border-radius:999px; background:#fffafc; color:#765566; font-size:.78rem; }
+.jar-status b { color:#ae416b; }
+.jar-grid { display:grid; gap:16px; }
+.jar-card { min-width:0; padding:22px; border:1px solid #eccbd7; border-radius:28px; background:linear-gradient(145deg,#fffafb,#fff3ea); box-shadow:0 13px 30px #9c4b6710; }
+.jar-open-card { background:linear-gradient(145deg,#fffafe,#f8efff); }
+.jar-card h2 { margin:6px 0 19px; font-size:1.55rem; }
+.jar-card form fieldset { display:grid; gap:10px; min-width:0; padding:0; border:0; }
+.jar-card label { color:#674657; font-size:.82rem; font-weight:700; }
+.jar-card label span { color:#927384; font-weight:400; }
+.jar-card textarea, .jar-card select { width:100%; min-height:46px; padding:11px 13px; border:1px solid #e6bccb; border-radius:14px; outline:0; color:#4d3140; background:#fffdfd; font:inherit; }
+.jar-card textarea { min-height:124px; resize:vertical; line-height:1.55; }
+.jar-card textarea:focus, .jar-card select:focus { border-color:#b94370; box-shadow:0 0 0 3px #f8dbe6; }
+.jar-card .button { width:100%; margin-top:4px; }
+.jar-note-reveal { position:relative; margin-top:18px; padding:18px; border:1px dashed #dda3b8; border-radius:20px; background:#fffdfc; animation:jar-note-arrive .35s ease-out both; }
+.jar-note-reveal > small { color:#b3446e; font-size:.64rem; font-weight:800; letter-spacing:.14em; }
+.jar-note-reveal blockquote { margin:13px 0 17px; color:#4a2d3d; font-family:Georgia,serif; font-size:1.25rem; line-height:1.55; white-space:pre-wrap; }
+.jar-reactions { display:flex !important; flex-flow:row wrap; align-items:center; gap:8px !important; padding-top:12px !important; border-top:1px solid #f0d8e1; }
+.jar-reactions span { width:100%; color:#866273; font-size:.76rem; }
+.jar-reactions button { display:grid; place-items:center; width:38px; min-height:38px; padding:0; border:1px solid #ecc1d0; border-radius:50%; color:#b44270; background:#fff8fb; font-size:1.2rem; }
+.jar-reactions button:hover { background:#fbe3ed; transform:translateY(-1px); }
+@keyframes jar-note-arrive { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
+@media (min-width:700px) { .jar-grid { grid-template-columns:1fr 1fr; } .jar-card { padding:27px; } }

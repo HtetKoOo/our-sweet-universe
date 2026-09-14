@@ -263,9 +263,29 @@ export const jarNotes = pgTable(
       .notNull()
       .references(() => user.id),
     body: text("body").notNull(),
+    // Optional prompt for the person opening a small surprise later.
+    openWhen: text("open_when"),
     createdAt: createdAt(),
   },
-  (t) => [index("jar_couple_idx").on(t.coupleId)],
+  (t) => [index("jar_couple_idx").on(t.coupleId), index("jar_creator_idx").on(t.coupleId, t.createdBy)],
+);
+
+// An opening belongs to the person who discovered the note. A note stays
+// private between the two people; its writer only learns that it was opened.
+export const jarNoteOpens = pgTable(
+  "jar_note_opens",
+  {
+    noteId: uuid("note_id")
+      .notNull()
+      .references(() => jarNotes.id, { onDelete: "cascade" }),
+    openedBy: text("opened_by")
+      .notNull()
+      .references(() => user.id),
+    reaction: text("reaction", { enum: ["heart", "hug", "smile"] }),
+    openedAt: timestamp("opened_at", { withTimezone: true }).defaultNow().notNull(),
+    reactedAt: timestamp("reacted_at", { withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.noteId, t.openedBy] }), index("jar_opened_by_idx").on(t.openedBy, t.openedAt)],
 );
 
 // These are the gentle prompts shared by every couple. A round references one
