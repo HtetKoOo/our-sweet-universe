@@ -85,6 +85,13 @@
       "when": 1789545600000,
       "tag": "0011_question_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789632000000,
+      "tag": "0012_celebration_emails",
+      "breakpoints": true
     }
   ]
 }

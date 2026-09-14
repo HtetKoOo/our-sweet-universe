@@ -26,6 +26,8 @@ export const user = pgTable("user", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
+  // Private birthday, used only for the couple’s shared celebration emails.
+  birthday: date("birthday"),
   image: text("image"),
   // A quiet, approximate presence signal for the other member of a couple.
   // It is refreshed only while someone is actively using the private app.
@@ -378,6 +380,27 @@ export const littleQuestionReminders = pgTable(
 
 // Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows
 // survive request failures so cleanup can retry without logging private URLs.
+// One delivery per recipient, couple, event, and local date. This makes retries
+// safe even if Cloudflare wakes the app more than once.
+export const coupleEventEmails = pgTable(
+  "couple_event_emails",
+  {
+    coupleId: uuid("couple_id")
+      .notNull()
+      .references(() => couples.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    eventKey: text("event_key").notNull(),
+    eventDate: date("event_date").notNull(),
+    sentAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.coupleId, t.userId, t.eventKey, t.eventDate] }),
+    index("couple_event_emails_date_idx").on(t.coupleId, t.eventDate),
+  ],
+);
+
 export const heartPhotoUploads = pgTable(
   "heart_photo_uploads",
   {

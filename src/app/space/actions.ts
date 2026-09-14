@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireCouple } from "@/lib/authorization";
 import { getDb } from "@/lib/db";
-import { couples, coupleMembers, mediaAssets, memories } from "@/lib/db/schema";
+import { couples, coupleMembers, mediaAssets, memories, user } from "@/lib/db/schema";
 import { memoryScope } from "@/lib/db/memory-scope";
-import { memoryAssetIdsInput, memoryInput, coupleInput, type ActionState } from "@/lib/memory-input";
+import { memoryAssetIdsInput, memoryInput, coupleInput, birthdayInput, type ActionState } from "@/lib/memory-input";
 
 export async function saveMemory(_previous: ActionState, form: FormData): Promise<ActionState> {
   const actor = await requireCouple();
@@ -103,4 +103,17 @@ export async function saveCouple(_previous: ActionState, form: FormData): Promis
   } catch { return {message: "Settings couldn’t be saved. Please try again."}; }
   revalidatePath("/space", "layout");
   return {message: "Saved. Our space is up to date."};
+}
+
+export async function saveBirthday(_previous: ActionState, form: FormData): Promise<ActionState> {
+  const actor = await requireCouple();
+  const parsed = birthdayInput.safeParse({ birthday: form.get("birthday") });
+  if (!parsed.success) return { message: "Please choose a valid birthday.", errors: z.flattenError(parsed.error).fieldErrors };
+  try {
+    await getDb().update(user).set({ birthday: parsed.data.birthday, updatedAt: new Date() }).where(eq(user.id, actor.userId));
+  } catch {
+    return { message: "Your birthday couldn’t be saved. Please try again." };
+  }
+  revalidatePath("/space/settings");
+  return { message: parsed.data.birthday ? "Birthday saved for our little celebrations." : "Birthday removed." };
 }
