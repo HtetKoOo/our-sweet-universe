@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { requireCouple } from "./authorization";
 import { calendarDate, isQuestionTime, localClock } from "./dates";
 import { getDb } from "./db";
@@ -29,10 +29,20 @@ export type LittleQuestionView = {
   timezone: string;
 };
 
-export type CompletedLittleQuestion = {
+export type QuestionHistoryItem = {
   id: string;
   questionDay: string;
   prompt: string;
+};
+
+export type QuestionHistoryPage = {
+  items: QuestionHistoryItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+};
+
+export type CompletedLittleQuestion = QuestionHistoryItem & {
   ownAnswer: string;
   partnerAnswer: string;
 };
@@ -220,52 +230,43 @@ export async function markLittleQuestionSeen(roundId: string) {
   return true;
 }
 
-export async function getCompletedLittleQuestions(
-  excludeRoundId?: string,
-): Promise<CompletedLittleQuestion[]> {
+export async function getCompletedLittleQuestionCount() {
   const actor = await requireCouple();
-  const db = getDb();
-  const rounds = await db
-    .select({
-      id: littleQuestionRounds.id,
-      questionDay: littleQuestionRounds.questionDay,
-      prompt: littleQuestionBank.prompt,
-    })
+  const [result] = await getDb()
+    .select({ count: sql<number>`count(*)::int` })
     .from(littleQuestionRounds)
-    .innerJoin(
-      littleQuestionBank,
-      eq(littleQuestionRounds.questionId, littleQuestionBank.id),
-    )
-    .where(
-      and(
-        eq(littleQuestionRounds.coupleId, actor.coupleId),
-        eq(littleQuestionRounds.status, "revealed"),
-      ),
-    )
-    .orderBy(desc(littleQuestionRounds.questionDay))
-    .limit(12);
+    .where(and(eq(littleQuestionRounds.coupleId, actor.coupleId), eq(littleQuestionRounds.status, "revealed")));
+  return result?.count ?? 0;
+}
 
-  const visibleRounds = rounds.filter((round) => round.id !== excludeRoundId);
-  if (!visibleRounds.length) return [];
-  const answers = await db
-    .select({
-      roundId: littleQuestionAnswers.roundId,
-      userId: littleQuestionAnswers.userId,
-      body: littleQuestionAnswers.body,
-    })
-    .from(littleQuestionAnswers)
-    .where(
-      inArray(littleQuestionAnswers.roundId, visibleRounds.map((round) => round.id)),
-    );
+export async function getLittleQuestionHistoryPage(page = 1, perPage = 20): Promise<QuestionHistoryPage> {
+  const actor = await requireCouple();
+  const safePage = Math.max(1, Math.floor(page));
+  const db = getDb();
+  const [countResult, items] = await Promise.all([
+    db.select({ count: sql<number>`count(*)::int` }).from(littleQuestionRounds)
+      .where(and(eq(littleQuestionRounds.coupleId, actor.coupleId), eq(littleQuestionRounds.status, "revealed"))),
+    db.select({ id: littleQuestionRounds.id, questionDay: littleQuestionRounds.questionDay, prompt: littleQuestionBank.prompt })
+      .from(littleQuestionRounds).innerJoin(littleQuestionBank, eq(littleQuestionRounds.questionId, littleQuestionBank.id))
+      .where(and(eq(littleQuestionRounds.coupleId, actor.coupleId), eq(littleQuestionRounds.status, "revealed")))
+      .orderBy(desc(littleQuestionRounds.questionDay), desc(littleQuestionRounds.id))
+      .limit(perPage).offset((safePage - 1) * perPage),
+  ]);
+  const total = countResult[0]?.count ?? 0;
+  return { items, total, page: safePage, totalPages: Math.max(1, Math.ceil(total / perPage)) };
+}
 
-  return visibleRounds.flatMap((round) => {
-    const roundAnswers = answers.filter((answer) => answer.roundId === round.id);
-    const ownAnswer = roundAnswers.find((answer) => answer.userId === actor.userId)?.body;
-    const partnerAnswer = roundAnswers.find((answer) => answer.userId !== actor.userId)?.body;
-    return ownAnswer && partnerAnswer
-      ? [{ ...round, ownAnswer, partnerAnswer }]
-      : [];
-  });
+export async function getCompletedLittleQuestion(id: string): Promise<CompletedLittleQuestion | null> {
+  const actor = await requireCouple();
+  const [round] = await getDb().select({ id: littleQuestionRounds.id, questionDay: littleQuestionRounds.questionDay, prompt: littleQuestionBank.prompt })
+    .from(littleQuestionRounds).innerJoin(littleQuestionBank, eq(littleQuestionRounds.questionId, littleQuestionBank.id))
+    .where(and(eq(littleQuestionRounds.id, id), eq(littleQuestionRounds.coupleId, actor.coupleId), eq(littleQuestionRounds.status, "revealed"))).limit(1);
+  if (!round) return null;
+  const answers = await getDb().select({ userId: littleQuestionAnswers.userId, body: littleQuestionAnswers.body })
+    .from(littleQuestionAnswers).where(eq(littleQuestionAnswers.roundId, round.id));
+  const ownAnswer = answers.find((answer) => answer.userId === actor.userId)?.body;
+  const partnerAnswer = answers.find((answer) => answer.userId !== actor.userId)?.body;
+  return ownAnswer && partnerAnswer ? { ...round, ownAnswer, partnerAnswer } : null;
 }
 
 export async function findQuestionRoundForActor(actor: Actor, roundId: string) {

@@ -4,7 +4,12 @@ import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireCouple } from "@/lib/authorization";
 import { getDb } from "@/lib/db";
-import { coupleMembers, littleQuestionAnswers, littleQuestionRounds, user } from "@/lib/db/schema";
+import {
+  coupleMembers,
+  littleQuestionAnswers,
+  littleQuestionRounds,
+  user,
+} from "@/lib/db/schema";
 import {
   findQuestionRoundForActor,
   revealWhenBothAnswered,
@@ -48,7 +53,9 @@ export async function actOnLittleQuestion(
       await revealWhenBothAnswered(actor, round.id);
     } catch (error) {
       console.error("little-question-answer-failed", error);
-      return { message: "Your answer is still here. Please try saving it again." };
+      return {
+        message: "Your answer is still here. Please try saving it again.",
+      };
     }
     revalidatePath("/space/questions");
     revalidatePath("/space/more");
@@ -74,13 +81,26 @@ export async function actOnLittleQuestion(
         ),
       )
       .returning({ id: littleQuestionRounds.id });
-    if (!changed.length) return { message: "That question just changed. Please check it again." };
+    if (!changed.length)
+      return { message: "That question just changed. Please check it again." };
     try {
-      const [partner] = await db.select({ name: user.name, email: user.email, emailVerified: user.emailVerified })
-        .from(coupleMembers).innerJoin(user, eq(coupleMembers.userId, user.id))
-        .where(and(eq(coupleMembers.coupleId, actor.coupleId), sql`${coupleMembers.userId} <> ${actor.userId}`))
+      const [partner] = await db
+        .select({
+          name: user.name,
+          email: user.email,
+          emailVerified: user.emailVerified,
+        })
+        .from(coupleMembers)
+        .innerJoin(user, eq(coupleMembers.userId, user.id))
+        .where(
+          and(
+            eq(coupleMembers.coupleId, actor.coupleId),
+            sql`${coupleMembers.userId} <> ${actor.userId}`,
+          ),
+        )
         .limit(1);
-      if (partner?.emailVerified) await sendRestRequestEmail({ to: partner.email });
+      if (partner?.emailVerified)
+        await sendRestRequestEmail({ to: partner.email });
     } catch (error) {
       console.error("rest-request-email-failed", error);
     }
@@ -105,7 +125,9 @@ export async function actOnLittleQuestion(
         ),
       );
     revalidatePath("/space/questions");
-    return { message: "This one can rest. A new question will come at the next noon." };
+    return {
+      message: "This one can rest. A new question will come at the next noon.",
+    };
   }
 
   if (parsed.data.intent === "decline-rest") {
