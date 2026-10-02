@@ -12,7 +12,7 @@ Run the app and open `/demo` to explore the interactive fictional preview. It us
 
 Our Sweet Universe is a mobile-first, responsive web app. The primary experience is designed for two people using their phones, while tablet and desktop layouts provide more space for shared memories and navigation.
 
-**Current milestone: Step 3 — private memories and couple settings.** Login and owner setup are available. `/space` supports text memories, editing, confirmed deletion, milestone stories, pagination, anniversary countdown and owner-only couple settings. `/demo` remains fictional. Shared heart photo upload, replacement, zoom/position editing and removal are implemented with authenticated Cloudinary delivery; see [heart photo setup](docs/HEART-PHOTO.md). Memory photo/video attachments, letters, jar persistence, V2 invitations and full deployment hardening are still upcoming.
+**Current build:** a private, authenticated shared space for two people. It includes shared Home customization, heart-photo delivery, memories with media, daily questions with private answers and history, Love Letters, Little Jar notes, partner presence, and an expiring partner-invite flow. `/demo` remains fictional and separate from private data. Production operations such as backup/restore workflows and broader end-to-end deployment hardening remain future work.
 
 ## Run locally
 
@@ -63,16 +63,15 @@ The included migration has been applied to this checkout’s configured Neon dat
 
 See [Step 3 walkthrough](docs/STEP-3.md) for the memory flow and verification limits.
 
-## V1 delivery sequence
+## Current capabilities
 
-- [x] Step 1: architecture, seven-route UI preview, schema, auth configuration, scoped read foundation.
-- [ ] Step 2: development Neon branch, migration integration checks, one-time owner provisioning, sign-in/sign-out, membership and session tests.
-- [x] Step 3 implementation: private couple settings, anniversary date, text memories CRUD and Our Story milestones; input validation and database isolation checks. Browser create/edit/delete, milestone and settings-save checks passed.
-- [ ] Step 4: authenticated Cloudinary upload and delivery, gallery, ownership checks and deletion cleanup.
-- [ ] Step 5: private letters and jar CRUD; couple-filtered random note selection.
-- [ ] Step 6: live integration tests, backups and restore, deployment hardening and private hosting.
-
-V2 adds an expiring single-use invite for a second account, with transactional capacity enforcement, revocation and account recovery. Every V1 object already has `coupleId` and `createdBy`.
+- [x] Closed registration, sign-in, email verification, password reset, owner setup, and couple-scoped authorization.
+- [x] Responsive shared Home with customizable widgets, heart-photo carousel, anniversary calculations, and partner presence.
+- [x] Private memories, milestones, media attachments, gallery, editing, deletion, and pagination.
+- [x] Daily questions with private answers, reveal-after-both-answering, history, reminder support, and a pause flow.
+- [x] Persistent Love Letters and Little Jar notes, including read/open tracking.
+- [x] Expiring, single-use partner invite creation and acceptance.
+- [ ] Backup/restore procedures, broader live end-to-end checks, and operational deployment hardening.
 
 ## Stack
 
