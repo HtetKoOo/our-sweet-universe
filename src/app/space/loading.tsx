@@ -8,7 +8,10 @@ export default function SpaceLoading() {
       <span className="loading-line loading-copy" />
       <div className="loading-stats"><span /><span /><span /></div>
     </div>
-    <div className="loading-heading"><span /><span /></div>
-    <div className="loading-widgets"><div /><div /><div /></div>
+    <span className="loading-presence" />
+    <div className="loading-shelf">
+      <div className="loading-heading"><span /><span /></div>
+      <div className="loading-widgets"><div /><div /><div /></div>
+    </div>
   </section>;
 }

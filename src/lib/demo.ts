@@ -30,3 +30,13 @@ export const demoNotes = [
   "A little reminder: you are my favorite person to come home to.",
   "Let's take the long way home again.",
 ];
+
+const demoHeartSlide = (first: string, second: string, accent: string) =>
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 440"><defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${first}"/><stop offset="1" stop-color="${second}"/></linearGradient></defs><rect width="480" height="440" fill="url(#sky)"/><circle cx="88" cy="92" r="52" fill="#fff" fill-opacity=".28"/><circle cx="392" cy="335" r="96" fill="#fff" fill-opacity=".2"/><path d="M151 309c-39-36-91-84-91-142 0-49 62-71 91-21 29-50 91-28 91 21 0 58-52 106-91 142Z" fill="${accent}" fill-opacity=".72"/><path d="M316 313c-31-29-71-66-71-112 0-39 49-56 71-17 22-39 71-22 71 17 0 46-40 83-71 112Z" fill="#fff" fill-opacity=".82"/><text x="240" y="78" text-anchor="middle" fill="#fff" font-family="Georgia, serif" font-size="27" font-style="italic">a little us</text></svg>`)}`;
+
+// Artwork is fictional and intentionally contains no private photographs.
+export const demoHeartPhotos = [
+  { src: demoHeartSlide("#f7bdd2", "#f9dfc8", "#b13f6d"), alt: "A rosy sample moment" },
+  { src: demoHeartSlide("#d9c8ef", "#f8e3c4", "#9b5b87"), alt: "A lavender sample moment" },
+  { src: demoHeartSlide("#f3c9bc", "#f7dfd5", "#a85171"), alt: "A warm sample moment" },
+];
