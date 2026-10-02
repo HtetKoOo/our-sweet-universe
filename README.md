@@ -4,6 +4,8 @@ A private couple app, built incrementally as a learning project.
 
 ## Preview
 
+[**Explore the live demo →**](https://ours.htetkooo.dev/demo)
+
 ![Our Sweet Universe public demo](public/demo-preview.png)
 
 Run the app and open `/demo` to explore the interactive fictional preview. It uses sample content only and never reads or saves private couple data.
