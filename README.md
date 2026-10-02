@@ -2,6 +2,16 @@
 
 A private couple app, built incrementally as a learning project.
 
+## Preview
+
+![Our Sweet Universe public demo](public/demo-preview.png)
+
+Run the app and open `/demo` to explore the interactive fictional preview. It uses sample content only and never reads or saves private couple data.
+
+## Design approach
+
+Our Sweet Universe is a mobile-first, responsive web app. The primary experience is designed for two people using their phones, while tablet and desktop layouts provide more space for shared memories and navigation.
+
 **Current milestone: Step 3 — private memories and couple settings.** Login and owner setup are available. `/space` supports text memories, editing, confirmed deletion, milestone stories, pagination, anniversary countdown and owner-only couple settings. `/demo` remains fictional. Shared heart photo upload, replacement, zoom/position editing and removal are implemented with authenticated Cloudinary delivery; see [heart photo setup](docs/HEART-PHOTO.md). Memory photo/video attachments, letters, jar persistence, V2 invitations and full deployment hardening are still upcoming.
 
 ## Run locally
