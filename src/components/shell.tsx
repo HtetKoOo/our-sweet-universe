@@ -13,12 +13,19 @@ import {
   Camera,
   ArrowUpRight,
   Ellipsis,
+  MessageCircleHeart,
+  NotebookText,
   X,
 } from "lucide-react";
 const links = [
   ["", "Home", House],
-  ["story", "Our Story", BookOpen],
   ["memories", "Memories", Camera],
+  ["questions", "Question", MessageCircleHeart],
+  ["notes", "Notes", NotebookText],
+  ["more", "More", Ellipsis],
+] as const;
+const moreLinks = [
+  ["story", "Our Story", BookOpen],
   ["gallery", "Gallery", Images],
   ["letters", "Love Letters", Mail],
   ["jar", "Memory Jar", Sparkles],
@@ -28,7 +35,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const menu = useRef<HTMLDialogElement>(null);
   const primaryLinks = links.filter(([slug]) =>
-    ["", "memories", "letters", "jar"].includes(slug),
+    ["", "memories", "questions", "notes"].includes(slug),
   );
   return (
     <div className="app-shell">
@@ -107,13 +114,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span className="dock-icon">
                 <Icon size={22} strokeWidth={1.8} />
               </span>
-              <span>
-                {label === "Love Letters"
-                  ? "Letters"
-                  : label === "Memory Jar"
-                    ? "Jar"
-                    : label}
-              </span>
+              <span>{label}</span>
             </Link>
           );
         })}
@@ -123,7 +124,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           aria-label="More pages"
           aria-haspopup="dialog"
           className={
-            ["/demo/story", "/demo/gallery", "/demo/anniversary"].includes(path)
+            ["/demo/more", "/demo/story", "/demo/gallery", "/demo/letters", "/demo/jar", "/demo/anniversary"].includes(path)
               ? "selected"
               : ""
           }
@@ -156,11 +157,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         <nav aria-label="More pages">
-          {links
-            .filter(([slug]) =>
-              ["story", "gallery", "anniversary"].includes(slug),
-            )
-            .map(([slug, label, Icon]) => (
+          {moreLinks.map(([slug, label, Icon]) => (
               <Link
                 key={slug}
                 href={`/demo/${slug}`}

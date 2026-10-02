@@ -13,8 +13,11 @@ export default async function Page({
     (section?.length ?? 0) > 1 ||
     ![
       "home",
-      "story",
       "memories",
+      "questions",
+      "notes",
+      "more",
+      "story",
       "gallery",
       "letters",
       "jar",

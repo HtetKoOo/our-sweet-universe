@@ -138,6 +138,95 @@ small {
   color: var(--muted);
   margin-top: 25px;
 }
+.entry-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.entry-actions .quiet-link {
+  gap: 6px;
+}
+.demo-current-note {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 18px;
+  color: #9a4b6c;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.demo-current-home {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  align-items: start;
+  gap: 28px;
+}
+.demo-current-shelf {
+  display: grid;
+  gap: 15px;
+}
+.demo-shelf-heading h2 {
+  margin-top: 3px;
+}
+.demo-shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.demo-shelf-grid a {
+  display: flex;
+  min-height: 170px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 21px;
+  border: 1px solid #f0d5e0;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffdfd, #fff3ea);
+  color: var(--ink);
+}
+.demo-shelf-grid a:last-child { grid-column: span 2; min-height: 150px; }
+.demo-shelf-grid svg { color: #b33f6a; }
+.demo-shelf-grid p { color: #ae416b; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; }
+.demo-shelf-grid h3 { font-size: 1.25rem; }
+.demo-shelf-grid small { margin-top: auto; color: #a43c65; font-weight: 700; }
+.demo-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.demo-gallery-grid figure { margin: 0; overflow: hidden; border: 1px solid #f0d5e0; border-radius: 22px; background: #fffdfd; }
+.demo-gallery-grid img { display: block; width: 100%; aspect-ratio: 1 / 1.08; object-fit: cover; }
+.demo-gallery-grid figcaption { padding: 12px 14px; color: #8b6273; font-size: 0.82rem; }
+.demo-question-card {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 30px;
+  border: 1px solid #efcfdd;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #fffafd, #fff4ee);
+}
+.demo-question-card > svg { color: #b43f6b; }
+.demo-question-card h2 { margin: 12px 0 24px; font-size: clamp(1.55rem, 4vw, 2.15rem); }
+.demo-question-card form { display: grid; gap: 10px; }
+.demo-question-card label { font-weight: 750; }
+.demo-question-card textarea { min-height: 126px; resize: vertical; padding: 14px; border: 1px solid #e9bdcf; border-radius: 18px; background: #fffdfd; color: var(--ink); }
+.demo-question-card .button { justify-self: start; }
+.demo-question-card small { display: block; margin-top: 18px; color: #806373; }
+.demo-notes-list,
+.demo-more-links { display: grid; gap: 14px; max-width: 720px; }
+.demo-notes-list article,
+.demo-more-links a { display: flex; align-items: center; gap: 16px; padding: 20px; border: 1px solid #efd3df; border-radius: 20px; background: #fffdfd; }
+.demo-notes-list article svg,
+.demo-more-links a > svg:first-child { flex: 0 0 auto; color: #b33f6a; }
+.demo-notes-list h2 { margin-top: 4px; font-size: 1.22rem; }
+.demo-more-links a > span { display: grid; gap: 2px; }
+.demo-more-links strong { font-size: 1rem; }
+.demo-more-links small { color: #806373; }
+.demo-more-links a > svg:last-child { margin-left: auto; color: #b33f6a; }
 .setup-card h1 {
   font-size: 2.8rem;
 }
@@ -708,6 +797,30 @@ small {
     height: 185px;
   }
 }
+
+@media (max-width: 760px) {
+  .demo-current-home { grid-template-columns: 1fr; }
+  .demo-shelf-grid { grid-template-columns: 1fr; }
+  .demo-shelf-grid a:last-child { grid-column: auto; }
+  .demo-gallery-grid { grid-template-columns: 1fr; }
+}
+
+/* The preview keeps its cards roomy until the full desktop canvas is available. */
+@media (max-width: 1100px) {
+  .demo-current-home {
+    grid-template-columns: minmax(0, 620px);
+    justify-content: center;
+  }
+
+  .demo-shelf-grid,
+  .memory-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .demo-shelf-grid a:last-child {
+    grid-column: auto;
+  }
+}
 @media (max-width: 1100px) {
   .sidebar {
     width: 200px;
@@ -740,6 +853,7 @@ small {
     display: none;
   }
   .memory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 13px;
   }
   .memory-info {
@@ -3961,6 +4075,7 @@ body:has(.memory-detail) .private-header {
 }
 .loading-card *,
 .loading-heading span,
+.loading-presence,
 .loading-memory-card,
 .loading-widgets > div {
   position: relative;
@@ -3968,6 +4083,7 @@ body:has(.memory-detail) .private-header {
 }
 .loading-card *::after,
 .loading-heading span::after,
+.loading-presence::after,
 .loading-memory-card::after,
 .loading-widgets > div::after {
   content: "";
@@ -4050,6 +4166,19 @@ body:has(.memory-detail) .private-header {
 .loading-heading span:last-child {
   width: 84px;
   height: 14px;
+}
+.loading-presence {
+  display: block;
+  width: min(220px, 72%);
+  height: 38px;
+  justify-self: center;
+  border: 1px solid #f0dce5;
+  border-radius: 999px;
+  background: #fffafd;
+}
+.loading-shelf {
+  display: grid;
+  gap: 16px;
 }
 .loading-widgets {
   display: grid;
@@ -5717,3 +5846,352 @@ body:has(.memory-detail) .private-header {
 
 /* Separate today’s question from the saved-answer entry. */
 .little-question-card + .little-question-history-link { margin-top:16px; }
+
+/* Tablet and desktop use the extra room for structure, while the mobile dock
+   remains unchanged below 601px. */
+@media (min-width: 601px) {
+  /* Keep the horizontal-navigation Home as a calm, phone-like single column. */
+  .space-home {
+    width: min(100%, 540px);
+    margin-inline: auto;
+  }
+
+  .space-loading {
+    max-width: 540px;
+    margin-inline: auto;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 0 0, #fdebf2 0, transparent 30rem),
+      linear-gradient(135deg, #fff8fa, #fff4ed);
+  }
+
+  .private-shell {
+    max-width: 1180px;
+    padding: 0 clamp(28px, 5vw, 64px);
+  }
+
+  .private-nav {
+    position: sticky;
+    top: 14px;
+    z-index: 20;
+    box-shadow: 0 8px 24px #6d30420d;
+  }
+
+  .private-content {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-top: 34px;
+    padding-bottom: 64px;
+  }
+
+  .private-heading {
+    margin-top: 8px;
+  }
+
+  .shared-gallery,
+  .home-customizer {
+    max-width: 100%;
+  }
+
+  .home-widget-grid {
+    gap: 18px;
+  }
+
+  .home-widget {
+    min-height: 204px;
+  }
+
+  .home-widget-wide .home-widget {
+    min-height: 190px;
+  }
+
+  .question-history-page,
+  .question-history-detail,
+  .little-question-card {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .little-question-card + .little-question-history-link {
+    max-width: 800px;
+    margin-inline: auto;
+    margin-top: 18px;
+  }
+
+  .question-history-page > header {
+    padding-inline: 0;
+  }
+}
+
+/* In the horizontal-nav range, present every private screen as one compact app. */
+@media (min-width: 601px) and (max-width: 899px) {
+  .private-shell {
+    max-width: 540px;
+    margin-inline: auto;
+    padding-inline: 18px;
+  }
+
+  .private-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    padding: 6px;
+    border-radius: 20px;
+  }
+
+  .private-nav a {
+    min-width: 0;
+    min-height: 46px;
+    gap: 5px;
+    padding-inline: 2px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .private-nav-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .space-loading {
+    display: grid;
+    grid-template-areas:
+      "card shelf"
+      "presence shelf";
+    grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+    align-items: start;
+    column-gap: clamp(28px, 4vw, 52px);
+    row-gap: 18px;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .loading-couple-card {
+    grid-area: card;
+    min-height: 468px;
+  }
+
+  .loading-presence {
+    grid-area: presence;
+  }
+
+  .loading-shelf {
+    grid-area: shelf;
+    min-width: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .private-shell {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    column-gap: clamp(34px, 5vw, 72px);
+    max-width: 1500px;
+    min-height: 100dvh;
+    padding: 32px clamp(34px, 6vw, 88px) 48px;
+  }
+
+  .private-nav {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    align-self: start;
+    padding: 10px;
+    border-radius: 26px;
+  }
+
+  .private-nav a {
+    flex: initial;
+    justify-content: flex-start;
+    min-height: 52px;
+    padding: 0 14px;
+    font-size: 0.9rem;
+  }
+
+  .private-content {
+    min-width: 0;
+    max-width: 1120px;
+    margin: 0;
+    padding: 2px 0 72px;
+  }
+
+  .private-nav a:hover,
+  .memory-card:hover,
+  .more-links a:hover,
+  .notes-links a:hover {
+    transform: translateY(-2px);
+  }
+
+  .memory-card-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .memory-month-list {
+    gap: 36px;
+  }
+
+  .memory-card {
+    min-height: 188px;
+  }
+
+  .memory-cover,
+  .memory-card-image,
+  .memory-card-note {
+    min-width: 132px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .gallery-tile {
+    min-height: 160px;
+  }
+
+  .gallery-tile:nth-child(5n + 1) {
+    min-height: 334px;
+  }
+
+  .more-links,
+  .notes-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .more-links a,
+  .notes-links a {
+    height: 100%;
+  }
+
+  .space-home {
+    max-width: 540px;
+  }
+
+  .home-widget-photo-half .home-photo-single {
+    width: min(100%, 176px);
+    height: 138px;
+    margin: 0 auto 12px;
+    border-radius: 22px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .private-shell {
+    grid-template-columns: 224px minmax(0, 1fr);
+  }
+
+  .private-content {
+    max-width: 1180px;
+  }
+
+  .home-widget-grid {
+    gap: 20px;
+  }
+
+  .home-widget {
+    padding: 24px;
+  }
+
+  .memory-card-content {
+    padding: 18px 19px 16px;
+  }
+
+  .memory-card-content > strong {
+    font-size: 1.4rem;
+  }
+}
+
+/* A wide Home becomes a small shared dashboard: the couple card is the
+   visual anchor and the configurable shelf can use the remaining column. */
+@media (min-width: 1100px) {
+  .space-home {
+    display: grid;
+    grid-template-areas:
+      "card shelf"
+      "presence shelf";
+    grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+    align-items: start;
+    column-gap: clamp(28px, 4vw, 52px);
+    row-gap: 18px;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .space-home > form {
+    grid-area: card;
+    min-width: 0;
+  }
+
+  .space-home > .partner-presence {
+    grid-area: presence;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .space-home > .home-widgets {
+    grid-area: shelf;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  .space-home .home-widgets-heading {
+    margin-bottom: 18px;
+  }
+
+  .space-home .home-widget-grid {
+    gap: 18px;
+  }
+
+  .space-home .home-widget {
+    min-height: 198px;
+  }
+
+  .space-home .home-widget-wide .home-widget {
+    min-height: 184px;
+  }
+
+}
+
+/* Let the dashboard begin sooner without squeezing its two columns. */
+@media (min-width: 1100px) and (max-width: 1199px) {
+  .private-shell {
+    grid-template-columns: 184px minmax(0, 1fr);
+    column-gap: 30px;
+    padding: 28px 28px 42px;
+  }
+
+  .space-home,
+  .space-loading {
+    grid-template-columns: minmax(330px, 0.82fr) minmax(0, 1.18fr);
+    column-gap: 32px;
+  }
+}
+
+/* Restore the roomier dashboard proportions once there is space for them. */
+@media (min-width: 1200px) {
+  .space-home,
+  .space-loading {
+    grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+    column-gap: clamp(28px, 4vw, 52px);
+  }
+}
+
+@media (min-width: 1500px) {
+  .space-home {
+    grid-template-columns: minmax(390px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .space-home .home-widget {
+    min-height: 214px;
+  }
+}
