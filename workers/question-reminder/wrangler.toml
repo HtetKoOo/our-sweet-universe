@@ -9,3 +9,10 @@ APP_URL = "https://ours.htetkooo.dev"
 [triggers]
 # 23:00 UTC = 06:00 Asia/Bangkok
 crons = ["0 23 * * *", "30 4 * * *"]
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true

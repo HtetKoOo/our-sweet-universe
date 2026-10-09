@@ -3,6 +3,7 @@ import { BirthdayForm, CoupleForm } from "@/components/memory-form";
 import { SignOut } from "@/components/sign-out";
 import { PartnerInvite } from "@/components/partner-invite";
 import { StartFresh } from "@/components/start-fresh";
+import { CelebrationResend } from "@/components/celebration-resend";
 import { getDb } from "@/lib/db";
 import { coupleMembers, user } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ export default async function Settings() {
     {couple.role === "owner" ? <CoupleForm couple={{name:couple.name,togetherSince:couple.togetherSince,timezone:couple.timezone}} /> : <p>Only the owner can change our space settings.</p>}
     <section className="private-account"><h2>Your birthday</h2><BirthdayForm birthday={me?.birthday ?? null} /></section>
     {couple.role === "owner" ? <PartnerInvite partner={partner ?? null} /> : null}
+    {couple.role === "owner" ? <CelebrationResend /> : null}
     {couple.role === "owner" ? <StartFresh /> : null}
     <section className="private-account"><h2>Your account</h2><SignOut /></section>
   </>;

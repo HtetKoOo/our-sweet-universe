@@ -42,6 +42,12 @@ function anniversaryDate(year: number, start: string) {
   return `${year}-${String(month).padStart(2, "0")}-${String(Math.min(day, lastDay)).padStart(2, "0")}`;
 }
 
+function monthsaryDate(year: number, month: number, start: string) {
+  const { day } = dateParts(start);
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(Math.min(day, lastDay)).padStart(2, "0")}`;
+}
+
 async function reserveDelivery(
   coupleId: string,
   userId: string,
@@ -114,20 +120,33 @@ export async function GET(request: NextRequest) {
     byCouple.set(row.coupleId, [...(byCouple.get(row.coupleId) ?? []), row]);
 
   let sent = 0;
+  const skipped: Record<string, number> = {};
+  const skip = (reason: string) => {
+    skipped[reason] = (skipped[reason] ?? 0) + 1;
+  };
   for (const members of byCouple.values()) {
-    if (members.length !== 2 || members.some((member) => !member.emailVerified))
+    if (members.length !== 2) {
+      skip("not-two-members");
       continue;
+    }
+    if (members.some((member) => !member.emailVerified)) {
+      skip("unverified-member");
+      continue;
+    }
     const couple = members[0]!;
     const clock = localClock(now, couple.timezone);
-    if (clock.hour !== 6) continue;
+    if (clock.hour !== 6) {
+      skip("outside-six-am-window");
+      continue;
+    }
     const today = calendarDate(now, couple.timezone);
     const start = dateParts(couple.togetherSince);
     const current = dateParts(today);
     const isAnniversary =
       current.year > start.year &&
       today === anniversaryDate(current.year, couple.togetherSince);
-    const sameDayOfMonth =
-      today === anniversaryDate(current.year, couple.togetherSince);
+    const isMonthsary =
+      today === monthsaryDate(current.year, current.month, couple.togetherSince);
 
     if (isAnniversary) {
       for (const member of members)
@@ -146,7 +165,7 @@ export async function GET(request: NextRequest) {
           })
         )
           sent++;
-    } else if (sameDayOfMonth && today > couple.togetherSince) {
+    } else if (isMonthsary && today > couple.togetherSince) {
       for (const member of members)
         if (
           await sendReserved({
@@ -162,7 +181,7 @@ export async function GET(request: NextRequest) {
           })
         )
           sent++;
-    }
+    } else skip("not-a-celebration-date");
 
     for (const member of members) {
       if (!member.birthday || member.birthday.slice(5) !== today.slice(5))
@@ -186,5 +205,6 @@ export async function GET(request: NextRequest) {
       }
     }
   }
-  return NextResponse.json({ sent });
+  console.log("celebration-email-job-finished", { sent, skipped, processedCouples: byCouple.size });
+  return NextResponse.json({ sent, skipped, processedCouples: byCouple.size });
 }
