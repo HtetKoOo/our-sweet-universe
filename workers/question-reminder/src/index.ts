@@ -7,10 +7,21 @@ type ScheduledContext = { waitUntil(promise: Promise<unknown>): void };
 
 const reminderWorker = {
   async scheduled(_controller: unknown, env: Env, ctx: ScheduledContext) {
+    const callJob = async (name: string, path: string) => {
+      const response = await fetch(`${env.APP_URL}${path}`, {
+        headers: { Authorization: `Bearer ${env.QUESTION_REMINDER_SECRET}` },
+      });
+      const body = await response.text();
+      if (!response.ok) {
+        console.error("scheduled-job-failed", { name, status: response.status, body });
+        return;
+      }
+      console.log("scheduled-job-finished", { name, status: response.status, body });
+    };
     ctx.waitUntil(
       Promise.all([
-        fetch(`${env.APP_URL}/api/jobs/question-reminder`, { headers: { Authorization: `Bearer ${env.QUESTION_REMINDER_SECRET}` } }),
-        fetch(`${env.APP_URL}/api/jobs/celebration-email`, { headers: { Authorization: `Bearer ${env.QUESTION_REMINDER_SECRET}` } }),
+        callJob("question-reminder", "/api/jobs/question-reminder"),
+        callJob("celebration-email", "/api/jobs/celebration-email"),
       ]),
     );
   },
