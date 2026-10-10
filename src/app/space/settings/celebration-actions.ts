@@ -31,13 +31,19 @@ export async function resendMissedMonthsary(
 
   const now = new Date();
   const today = calendarDate(now, actor.timezone);
-  const missedDate = previousCalendarDate(today);
-  const missedYear = Number(missedDate.slice(0, 4));
-  const missedMonth = Number(missedDate.slice(5, 7));
-  const isMonthsary =
-    missedDate > actor.togetherSince &&
-    missedDate === monthsaryDate(missedYear, missedMonth, actor.togetherSince);
-  if (!isMonthsary) return { message: "There isn’t a missed monthsary email available to resend today." };
+  let missedDate = previousCalendarDate(today);
+  for (let daysAgo = 1; daysAgo <= 7; daysAgo += 1) {
+    const candidate = daysAgo === 1 ? missedDate : previousCalendarDate(missedDate);
+    missedDate = candidate;
+    const candidateYear = Number(candidate.slice(0, 4));
+    const candidateMonth = Number(candidate.slice(5, 7));
+    const isMonthsary =
+      candidate > actor.togetherSince &&
+      candidate === monthsaryDate(candidateYear, candidateMonth, actor.togetherSince) &&
+      !(candidateMonth === Number(actor.togetherSince.slice(5, 7)) && candidateYear > Number(actor.togetherSince.slice(0, 4)));
+    if (isMonthsary) break;
+    if (daysAgo === 7) return { message: "There isn’t a missed monthsary email from the last seven days to resend." };
+  }
 
   const db = getDb();
   const members = await db
@@ -79,7 +85,7 @@ export async function resendMissedMonthsary(
     }
   }
   revalidatePath("/space/settings");
-  if (sent === 2) return { message: "Yesterday’s monthsary email is on its way to both of you." };
+  if (sent === 2) return { message: "The missed monthsary email is on its way to both of you." };
   if (sent === 1) return { message: "The monthsary email was sent to one person. Please try again for the other." };
   return { message: "This monthsary email was already resent, or it could not be sent. Check the email provider logs before trying again." };
 }
