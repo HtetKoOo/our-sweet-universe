@@ -10,6 +10,7 @@ const initialState: CelebrationResendState = { message: "" };
 
 export function CelebrationResend() {
   const [state, action, pending] = useActionState(resendMissedMonthsary, initialState);
+  if (state.completed) return null;
   return (
     <section className="private-account">
       <h2>Missed a monthly note?</h2>

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireCouple } from "@/lib/authorization";
 import { getDb } from "@/lib/db";
@@ -8,7 +8,7 @@ import { coupleEventEmails, coupleMembers, user } from "@/lib/db/schema";
 import { calendarDate } from "@/lib/dates";
 import { sendMonthsaryEmail } from "@/lib/email";
 
-export type CelebrationResendState = { message: string };
+export type CelebrationResendState = { message: string; completed?: boolean };
 
 function previousCalendarDate(value: string) {
   const date = new Date(`${value}T00:00:00Z`);
@@ -54,8 +54,23 @@ export async function resendMissedMonthsary(
   if (members.length !== 2 || members.some((member) => !member.emailVerified))
     return { message: "Both members need verified email addresses before this can be resent." };
 
+  const deliveries = await db
+    .select({ userId: coupleEventEmails.userId })
+    .from(coupleEventEmails)
+    .where(
+      and(
+        eq(coupleEventEmails.coupleId, actor.coupleId),
+        eq(coupleEventEmails.eventDate, missedDate),
+        inArray(coupleEventEmails.eventKey, ["monthsary", "monthsary-manual"]),
+      ),
+    );
+  const deliveredTo = new Set(deliveries.map((delivery) => delivery.userId));
+  if (members.every((member) => deliveredTo.has(member.id)))
+    return { message: "The monthsary email has already been sent to both of you.", completed: true };
+
   let sent = 0;
   for (const member of members) {
+    if (deliveredTo.has(member.id)) continue;
     const [reserved] = await db
       .insert(coupleEventEmails)
       .values({
@@ -85,7 +100,7 @@ export async function resendMissedMonthsary(
     }
   }
   revalidatePath("/space/settings");
-  if (sent === 2) return { message: "The missed monthsary email is on its way to both of you." };
+  if (sent + deliveredTo.size === 2) return { message: "The missed monthsary email is on its way to both of you.", completed: true };
   if (sent === 1) return { message: "The monthsary email was sent to one person. Please try again for the other." };
   return { message: "This monthsary email was already resent, or it could not be sent. Check the email provider logs before trying again." };
 }
